@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>星辰大海</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/a251231/mass@main/panel/js/jquery.base64.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/a251231/mass@main/panel/js/skel.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.all.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
+	
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/a251231/mass@main/panel/css/other.css?66886666">
+    <link rel="icon" type="image/x-icon" href="https://github.com/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/a251231/mass@main/panel/css/sweetalert.css">
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/a251231/mass@main/panel/js/sweetalert-dev.js"></script>
+    </head>
+
+<body class="landing">
+    <script type="text/javascript" color="255,255,255" opacity='0.7' zIndex="auto" count="200" src="https://cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+    <div id="page-wrapper">
+
+        <section id="banner">
+            <div class="inner">
+                <h2>星辰大海,与你同在</h2>
+                <p>扫码即可开始使用</p>
+                 <ul class="actions">
+                    <div>
+                        <img id="qrcode" height="170em" src="./ok.svg" />
+                    </div>
+                        <li>
+                            <li><a id="jumpapp" href="#" class="button" title="APP登录">跳转京东APP添加</a>
+
+                            <li><a id="la" class="button" title="用户群" href="https://jq.qq.com/?_wv=1027&k=BPfE1Gs1">加入薅羊毛群</a>
+                            
+                            <li><a id="lcshogin" class="button" title="机器人使用指南" href="https://shimo.im/docs/6vcJQkJhKKYJhd3H/">BOT使用指南</a>
+                        </li>
+                </ul>
+                <p>
+                    <a href="https://t.me/byxh1" target="_blank" style="color:rgb(12, 243, 32);font-weight:bold"> [TG群(防炸)]</a><br>
+                     <br /> <a style="font-size:12px;">手机用户可直接转跳jd登录,电脑用户请用手机扫码登录</a>
+                    <br /> <a style="font-size:12px;">登录后网页转跳到管理界面,请在QQ一栏备注你的QQ号</a>
+                </p>
+
+                <div class="more">
+                    
+                    <br />欢迎🧡使用
+
+                </div>
+            </div>
+        </section>
+    </div>
+	
+	<div>
+        <script>
+            swal("\n请加薅羊毛群获取资产变动推送", "为了您的资产安全，请务必关闭小额免密支付！", "Thanks For Using")
+        </script>
+	</div>
+</body>
+<script>
+var timer;
+    var qrcode = document.getElementById("qrcode")
+    var loginUrl = ""
+    var success = "https://ghproxy.com/https://raw.githubusercontent.com/cdle/jd_study/main/xdd/static/ok.svg";
+    var jumpapp = document.getElementById('jumpapp')
+    var hd = document.getElementById("hd")
+    function showQrcode() {
+        var xmlhttp = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+        xmlhttp.onreadystatechange = function() {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                data = JSON.parse(xmlhttp.responseText)
+                if (data.url && data.url.indexOf("http") != -1) {
+                    qrcode.src = "data:image/png;base64," + data.img
+                    loginUrl = data.url
+                } else {
+                    showQrcode()
+                }
+            }
+        }
+        xmlhttp.open("GET", "/api/login/qrcode", true);
+        xmlhttp.send();
+    }
+    showQrcode()
+
+			function login() {
+				var xmlhttp = window.XMLHttpRequest
+					? new XMLHttpRequest()
+					: new ActiveXObject("Microsoft.XMLHTTP");
+				xmlhttp.onreadystatechange = function () {
+					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+						var results = xmlhttp.responseText;
+						console.log(results);
+						switch (results) {
+							case "授权登录未确认":
+								break;
+							case "登录":
+								qrcode.src = success;
+								clearInterval(timer);
+								setTimeout(() => {
+									window.location.href = "/admin"
+								}, 1000);
+								break;
+							case "成功":
+								qrcode.src = success;
+								clearInterval(timer);
+								setTimeout(() => {}, 1000);
+								break;
+							default:
+								showQrcode();
+								break;
+						}
+					}
+				};
+				xmlhttp.open("GET", "/api/login/query", true);
+				xmlhttp.send();
+			}
+
+    function polling() {
+        timer = setInterval(() => {
+            login()
+        }, 1500);
+    }
+    polling()
+
+    jumpapp.addEventListener('click', function() {
+        if (loginUrl) {
+            window.location.href = `openapp.jdmobile://virtual/ad?params=${encodeURI(
+                JSON.stringify({
+                    category: 'jump',
+                    des: 'ThirdPartyLogin',
+                    action: 'to',
+                    onekeylogin: 'return',
+                    url: loginUrl,
+                    authlogin_returnurl: 'weixin://',
+                    browserlogin_fromurl: window.location.host,
+                })
+            )}`;
+        } else {
+            alert('出了点小问题，请刷新试试！');
+        }
+    })
+</script>
+</html>
